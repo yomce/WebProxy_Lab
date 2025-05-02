@@ -36,3 +36,82 @@ Files:
   cgi-bin/adder.c	CGI program that adds two numbers
   cgi-bin/Makefile	Makefile for adder.c
 
+## Tiny 웹 서버
+Dave O'Hallaron
+Carnegie Mellon University
+<hr>
+이곳은 Tiny 서버의 홈 디렉토리입니다.
+Tiny 서버는 카네기멜론 대학교의 "15-213: 컴퓨터 시스템 입문(Intro to Computer Systems)" 수업에서 사용하는, 약 200줄 정도의 웹 서버 코드입니다.
+
+Tiny 서버는 다음과 같은 기능을 합니다:
+
+- GET 메서드를 사용하여,
+
+    -  `./`  디렉토리에서 정적(static) 콘텐츠 (텍스트 파일, HTML, GIF, JPG 파일 등)를 제공하고,
+
+    - `./cgi-bin` 디렉토리 안에 있는 CGI 프로그램을 실행해서 동적(dynamic) 콘텐츠를 제공합니다.
+
+- 기본 페이지는 `index.html`이 아니라 home.html입니다.  
+→ 이렇게 하면 브라우저에서 디렉토리의 내용을 직접 볼 수 있도록 설정되어 있습니다.
+
+> 참고: Tiny는 보안이 되어 있지도 않고, 완성된 서버도 아닙니다. 오직 교육 목적으로만 사용해야 합니다.
+
+### 컴파일 환경:
+
+- gcc 2.95.3 버전
+
+- Linux 2.2.20 커널
+
+- 위 환경에서 코드를 컴파일하고 실행하면 깨끗하게 동작합니다.
+
+## Tiny 설치 방법
+빈 디렉토리(폴더) 안에서 명령어를 입력하세요:
+
+```nginx
+tar xvf tiny.tar
+```
+→ `tiny.tar` 압축파일을 해제합니다.
+
+## Tiny 실행 방법
+1. 서버에서 명령어를 실행하세요:
+
+```php-template
+tiny <포트번호>
+```
+예를 들어:
+
+```yaml
+tiny 8000
+```
+
+2. 브라우저를 열고 Tiny 서버에 접속하세요:
+
+- 정적 콘텐츠 접근:
+
+```cpp
+http://<호스트주소>:8000
+````
+- 동적 콘텐츠 접근 (CGI 프로그램 실행):
+
+```arduino
+http://<호스트주소>:8000/cgi-bin/adder?1&2
+```
+(`adder` 프로그램을 실행해서 1 + 2를 계산하는 예시입니다.)
+
+## 파일 목록 설명
+- `tiny.tar` — 이 디렉토리 전체를 담은 압축 파일
+
+- `tiny.c` — Tiny 웹 서버의 C 소스 코드
+
+- `Makefile` — `tiny.c`를 빌드하기 위한 Makefile
+
+- `home.html` — 테스트용 HTML 페이지
+
+- `godzilla.gif` — `home.html` 안에 삽입된 이미지 파일
+
+- `README` — 지금 읽고 있는 이 설명 파일
+
+- `cgi-bin/adder.c` — 두 숫자를 더하는 CGI 프로그램 소스 코드
+
+- `cgi-bin/Makefile` — `adder.c`를 빌드하기 위한 Makefile
+
