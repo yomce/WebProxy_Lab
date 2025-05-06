@@ -154,3 +154,17 @@ void serve_static(int fd, char *filename, int filesize)
     rio_writen(fd, srcp, filesize);                     // 매핑한 메모리를 클라이언트로 전송
     Munmap(srcp, filesize);                             // 메모리 매핑 해제
 }
+
+void get_filetype(char *filename, char *filetype)
+{
+    if (strstr(filename, ".html"))
+        strcpy(filetype, "text/html");
+    else if (strstr(filename, ".gif"))
+        strcpy(filetype, "image/gif");
+    else if (strstr(filename, ".jpg"))
+        strcpy(filetype, "image/jpeg");
+    else if (strstr(filename, ".png"))
+        strcpy(filetype, "image/png");
+    else
+        strcpy(filetype, "text/plain");
+}
