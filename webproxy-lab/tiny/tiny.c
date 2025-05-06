@@ -133,3 +133,24 @@ int parse_uri(char *uri, char *filename, char *cgiargs)
         return 0;
     }
 }
+
+void serve_static(int fd, char *filename, int filesize)
+{
+    int srcfd;
+    char *srcp, filetype[MAXLINE], buf[MAXBUF];
+
+    // 클라이언트한테 응답 헤더 보내기
+    get_filetype(filename, filetype); // 파일 타입 결정
+    sprintf(buf, "HTTP/1.0 200 OK\r\n");
+    sprintf(buf + strlen(buf), "Server: Tiny Web Server\r\n");
+    sprintf(buf + strlen(buf), "Content-length: %d\r\n", filesize);
+    sprintf(buf + strlen(buf), "Content-type: %s\r\n\r\n", filetype);
+    rio_writen(fd, buf, strlen(buf));
+
+    // 클라이언트한테 실제 파일 보내기
+    srcfd = Open(filename, O_RDONLY, 0);               // 파일 열기
+    srcp = Mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd, 0); // 파일을 메모리에 매핑
+    Close(srcfd);                                       // 파일 디스크립터는 바로 닫기
+    rio_writen(fd, srcp, filesize);                     // 매핑한 메모리를 클라이언트로 전송
+    Munmap(srcp, filesize);                             // 메모리 매핑 해제
+}
