@@ -106,3 +106,30 @@ void read_requesthdrs(rio_t *rp)
     }
     return;
 }
+
+int parse_uri(char *uri, char *filename, char *cgiargs)
+{
+    char *ptr;
+
+    if (!strstr(uri, "cgi-bin")) { // 정적 컨텐츠
+        strcpy(cgiargs, "");        // CGI 인자 없음
+        strcpy(filename, ".");      // 현재 디렉토리 기준
+        strcat(filename, uri);      // 파일 경로 완성
+        if (uri[strlen(uri) - 1] == '/') // uri가 디렉토리면
+            strcat(filename, "home.html"); // 기본 파일로 설정
+        return 1;
+    }
+    else { // 동적 컨텐츠
+        ptr = index(uri, '?');
+        if (ptr) {
+            *ptr = '\0'; // '?'를 널 문자로 끊어줌
+            strcpy(cgiargs, ptr + 1); // 그 다음은 CGI 인자
+        }
+        else {
+            strcpy(cgiargs, ""); // 인자 없으면 빈 문자열
+        }
+        strcpy(filename, "."); // 현재 디렉토리 기준
+        strcat(filename, uri); // 파일 경로 완성
+        return 0;
+    }
+}
