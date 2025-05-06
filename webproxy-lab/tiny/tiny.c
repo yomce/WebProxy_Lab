@@ -187,3 +187,26 @@ void serve_dynamic(int fd, char *filename, char *cgiargs)
     }
     Wait(NULL); // 부모 프로세스: 자식 종료 기다림
 }
+
+void clienterror(int fd, char *cause, char *errnum, char *shortmsg, char *longmsg)
+{
+    char buf[MAXLINE], body[MAXBUF];
+
+    // HTTP 응답 본문(body) 생성
+    sprintf(body, "<html><title>Tiny Error</title>");
+    sprintf(body + strlen(body), "<body bgcolor=\"ffffff\">\r\n");
+    sprintf(body + strlen(body), "%s: %s\r\n", errnum, shortmsg);
+    sprintf(body + strlen(body), "<p>%s: %s\r\n", longmsg, cause);
+    sprintf(body + strlen(body), "<hr><em>The Tiny Web Server</em>\r\n");
+
+    // HTTP 응답 헤더(header) 생성 후 전송
+    sprintf(buf, "HTTP/1.0 %s %s\r\n", errnum, shortmsg);
+    rio_writen(fd, buf, strlen(buf));
+    sprintf(buf, "Content-type: text/html\r\n");
+    rio_writen(fd, buf, strlen(buf));
+    sprintf(buf, "Content-length: %lu\r\n\r\n", strlen(body));
+    rio_writen(fd, buf, strlen(buf));
+
+    // HTTP 응답 본문(body) 전송
+    rio_writen(fd, body, strlen(body));
+}
