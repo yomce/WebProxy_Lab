@@ -168,3 +168,22 @@ void get_filetype(char *filename, char *filetype)
     else
         strcpy(filetype, "text/plain");
 }
+
+void serve_dynamic(int fd, char *filename, char *cgiargs)
+{
+    char buf[MAXLINE], *emptylist[] = { NULL };
+
+    // HTTP 응답 헤더 일부만 먼저 보내기
+    sprintf(buf, "HTTP/1.0 200 OK\r\n");
+    rio_writen(fd, buf, strlen(buf));
+    sprintf(buf, "Server: Tiny Web Server\r\n");
+    rio_writen(fd, buf, strlen(buf));
+
+    if (Fork() == 0) { // 자식 프로세스
+        // CGI 프로그램이 결과를 바로 클라이언트로 보내게 fd를 stdout에 복제
+        setenv("QUERY_STRING", cgiargs, 1); // 환경변수 설정
+        Dup2(fd, STDOUT_FILENO);             // 클라이언트로 바로 출력
+        Execve(filename, emptylist, environ); // CGI 프로그램 실행
+    }
+    Wait(NULL); // 부모 프로세스: 자식 종료 기다림
+}
