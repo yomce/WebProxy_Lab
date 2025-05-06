@@ -95,3 +95,14 @@ void doit(int fd)
         serve_dynamic(fd, filename, cgiargs);
     }
 }
+
+void read_requesthdrs(rio_t *rp)
+{
+    char buf[MAXLINE];
+
+    rio_readlineb(rp, buf, MAXLINE);
+    while (strcmp(buf, "\r\n")) {
+        rio_readlineb(rp, buf, MAXLINE);
+    }
+    return;
+}
