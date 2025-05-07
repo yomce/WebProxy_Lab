@@ -136,24 +136,45 @@ int parse_uri(char *uri, char *filename, char *cgiargs)
 
 void serve_static(int fd, char *filename, int filesize)
 {
-    int srcfd;
-    char *srcp, filetype[MAXLINE], buf[MAXBUF];
+    int srcfd;                     // 디스크에서 파일을 읽어오기 위한 파일 디스크립터
+    char *srcp;                     // 메모리에 매핑한 파일 내용을 가리키는 포인터
+    char filetype[MAXLINE];         // 파일 타입(MIME type)을 저장할 버퍼
+    char buf[MAXBUF];               // 클라이언트로 보낼 HTTP 응답 헤더를 저장할 버퍼
 
-    // 클라이언트한테 응답 헤더 보내기
-    get_filetype(filename, filetype); // 파일 타입 결정
+    // (1) 클라이언트에 보낼 HTTP 응답 헤더를 준비한다
+    get_filetype(filename, filetype); // 파일 확장자를 보고 MIME 타입을 결정 (ex: .html -> text/html)
+
+    // HTTP 응답의 첫 줄: 200 OK를 의미 (정상 처리됨)
     sprintf(buf, "HTTP/1.0 200 OK\r\n");
-    sprintf(buf + strlen(buf), "Server: Tiny Web Server\r\n");
-    sprintf(buf + strlen(buf), "Content-length: %d\r\n", filesize);
-    sprintf(buf + strlen(buf), "Content-type: %s\r\n\r\n", filetype);
-    rio_writen(fd, buf, strlen(buf));
+    rio_writen(fd, buf, strlen(buf)); // 클라이언트 소켓(fd)로 보낸다
 
-    // 클라이언트한테 실제 파일 보내기
-    srcfd = Open(filename, O_RDONLY, 0);               // 파일 열기
-    srcp = Mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd, 0); // 파일을 메모리에 매핑
-    Close(srcfd);                                       // 파일 디스크립터는 바로 닫기
-    rio_writen(fd, srcp, filesize);                     // 매핑한 메모리를 클라이언트로 전송
-    Munmap(srcp, filesize);                             // 메모리 매핑 해제
+    // 두 번째 줄: 서버 정보
+    sprintf(buf, "Server: Tiny Web Server\r\n");
+    rio_writen(fd, buf, strlen(buf)); // 클라이언트로 보낸다
+
+    // 세 번째 줄: 컨텐츠 길이 (파일 크기만큼)
+    sprintf(buf, "Content-length: %d\r\n", filesize);
+    rio_writen(fd, buf, strlen(buf)); // 클라이언트로 보낸다
+
+    // 네 번째 줄: 컨텐츠 타입 (html, jpeg, gif 등)
+    sprintf(buf, "Content-type: %s\r\n\r\n", filetype);
+    rio_writen(fd, buf, strlen(buf)); // 클라이언트로 보낸다
+    // (여기까지가 HTTP 응답 헤더 부분 끝)
+
+    // (2) 클라이언트에 파일 내용을 보낸다
+    srcfd = Open(filename, O_RDONLY, 0); // filename 파일을 읽기 전용으로 연다 (srcfd가 파일을 가리킴)
+
+    // 파일을 메모리에 매핑한다 (파일 전체를 가상 메모리에 올린다)
+    srcp = Mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd, 0);
+    Close(srcfd); // 파일 디스크립터는 더 이상 필요 없으니까 바로 닫는다
+
+    // 매핑된 메모리(srcp)가 파일 내용을 가지고 있으니, 이걸 클라이언트로 그대로 보낸다
+    rio_writen(fd, srcp, filesize);
+
+    // 파일 매핑 해제 (메모리 반환)
+    Munmap(srcp, filesize);
 }
+
 
 void get_filetype(char *filename, char *filetype)
 {
