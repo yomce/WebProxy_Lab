@@ -5,38 +5,48 @@
     <title>Welcome to Tiny Web Server</title>
     <style>
         body {
-            background-color: #f0f8ff; /* 연한 하늘색 배경 */
-            font-family: 'Arial', sans-serif;
-            text-align: center;
+            background: linear-gradient(to right, #74ebd5, #ACB6E5); /* 예쁜 그라데이션 배경 */
+            font-family: 'Poppins', 'Arial', sans-serif;
             margin: 0;
             padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
         }
-        .container {
-            padding: 50px;
+        .card {
+            background-color: white;
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            text-align: center;
+            width: 400px;
         }
-        img {
-            width: 300px;
+        .card img {
+            width: 100%;
             height: auto;
+            border-radius: 10px;
             margin-bottom: 20px;
         }
-        h1 {
-            font-size: 36px;
+        .card h1 {
+            font-size: 32px;
             color: #333;
             margin-bottom: 10px;
         }
-        p {
-            font-size: 20px;
-            color: #555;
+        .card p {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
         }
-        footer {
-            margin-top: 40px;
+        .card footer {
             font-size: 14px;
             color: #aaa;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="card">
         <img src="godzilla.gif" alt="Godzilla">
         <h1>Welcome to Tiny Web Server</h1>
         <p>Created by Dave O'Hallaron</p>
